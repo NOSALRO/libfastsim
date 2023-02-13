@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 #include "pybind_utils.hpp"
 
 namespace py = pybind11;
@@ -7,7 +8,9 @@ namespace py = pybind11;
 namespace fastsim {
     namespace python {
         using namespace fastsim;
-        void py_light_sensor(py::module& m){
+
+        void py_light_sensor(py::module& m)
+        {
             py::class_<LightSensor>(m, "LightSensor")
                 .def(py::init<int, float, float>(),
                     py::arg("color"),
@@ -23,5 +26,5 @@ namespace fastsim {
                 .def("get_num", &LightSensor::get_num)
                 .def("get_distance", &LightSensor::get_distance);
         }
-    }
-}
+    } // namespace python
+} // namespace fastsim

@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 #include "pybind_utils.hpp"
 
 namespace py = pybind11;
@@ -7,7 +8,9 @@ namespace py = pybind11;
 namespace fastsim {
     namespace python {
         using namespace fastsim;
-        void py_robot(py::module& m){
+
+        void py_robot(py::module& m)
+        {
             py::class_<Robot, std::shared_ptr<Robot>>(m, "Robot")
                 .def(py::init<float>(),
                     py::arg("radius"))
@@ -53,5 +56,5 @@ namespace fastsim {
                 .def("camera_enabled", &Robot::camera_enabled)
                 .def("use_camera", static_cast<void (Robot::*)()>(&Robot::use_camera));
         }
-    }
-}
+    } // namespace python
+} // namespace fastsim

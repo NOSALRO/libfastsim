@@ -1,6 +1,7 @@
+#include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/cast.h>
+
 #include "pybind_utils.hpp"
 
 namespace py = pybind11;
@@ -8,14 +9,16 @@ namespace py = pybind11;
 namespace fastsim {
     namespace python {
         using namespace fastsim;
-        void py_posture(py::module& m){
+
+        void py_posture(py::module& m)
+        {
             py::class_<Posture>(m, "Posture")
                 .def(py::init<float, float, float>(),
                     py::arg("x"),
                     py::arg("y"),
                     py::arg("theta"))
                 .def(py::init<>())
-                .def(py::init<const Posture &>(),
+                .def(py::init<const Posture&>(),
                     py::arg("p"))
                 .def("__eq__", &Posture::operator=)
                 .def("theta", &Posture::theta)
@@ -30,10 +33,10 @@ namespace fastsim {
                 .def("get_x", &Posture::get_x)
                 .def("get_y", &Posture::get_y)
                 // .def("dist_to", static_cast<float (Posture::*)(const Posture&)>(&Posture::dist_to),
-                    // py::arg("p"))
+                // py::arg("p"))
                 // .def("dist_to", static_cast<float (Posture::*)(float, float)>(&Posture::dist_to),
-                    // py::arg("x"),
-                    // py::arg("y"))
+                // py::arg("x"),
+                // py::arg("y"))
                 .def("rotate", &Posture::rotate,
                     py::arg("theta"))
                 .def("__add__", &Posture::operator+,
@@ -43,5 +46,5 @@ namespace fastsim {
                     py::arg("d_r"),
                     py::arg("wheels_dist"));
         }
-    }
-}
+    } // namespace python
+} // namespace fastsim

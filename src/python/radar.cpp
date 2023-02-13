@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+
 #include "pybind_utils.hpp"
 
 namespace py = pybind11;
@@ -6,7 +7,9 @@ namespace py = pybind11;
 namespace fastsim {
     namespace python {
         using namespace fastsim;
-        void py_radar(py::module& m){
+
+        void py_radar(py::module& m)
+        {
             py::class_<Radar>(m, "Radar")
                 .def(py::init<int, int, bool>(),
                     py::arg("color"),
@@ -20,5 +23,5 @@ namespace fastsim {
                 .def("get_color", &Radar::get_color)
                 .def("get_inc", &Radar::get_inc);
         }
-    }
-}
+    } // namespace python
+} // namespace fastsim

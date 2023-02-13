@@ -1,15 +1,13 @@
-import sys
-sys.path.append('build/')
-import fastsim
+import pyfastsim
 import math
 import time
 
 if __name__ == "__main__":
-    settings = fastsim.Settings(sys.argv[1])
+    settings = pyfastsim.Settings(sys.argv[1])
     map = settings.map()
     robot = settings.robot()
 
-    d = fastsim.Display(map, robot)
+    d = pyfastsim.Display(map, robot)
 
     for i in range(1000):
         d.update()
