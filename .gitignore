@@ -26,9 +26,13 @@
 # Waf things
 .lock-waf*
 .waf-*
+.waf3-*
 build
 
 # Executables
 *.exe
 *.out
 *.app
+
+# Python
+__pycache__

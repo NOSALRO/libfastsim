@@ -9,7 +9,7 @@ blddir = 'build'
 import copy
 import os, sys
 import glob
-
+sys.path.insert(0, sys.path[0]+'/waf_tools')
 
 def options(opt):
     opt.load('compiler_cxx boost waf_unit_test')
