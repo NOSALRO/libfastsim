@@ -9,7 +9,7 @@ namespace fastsim {
     namespace python {
         using namespace fastsim;
         void py_map(py::module& m){
-            py::class_<Map>(m, "Map")
+            py::class_<Map, std::shared_ptr<Map>>(m, "Map")
                 .def(py::init<const char*, float>(),
                     py::arg("fname"),
                     py::arg("real_w"))

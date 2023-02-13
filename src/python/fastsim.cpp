@@ -25,7 +25,6 @@ PYBIND11_MODULE(fastsim, m) {
     py_display(m);
     py_laser_scanner(m);
     py_light_sensor(m);
-    // py_misc(m);
     py_settings(m);
     py_goal(m);
 }

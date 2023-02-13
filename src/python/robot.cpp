@@ -8,7 +8,7 @@ namespace fastsim {
     namespace python {
         using namespace fastsim;
         void py_robot(py::module& m){
-            py::class_<Robot>(m, "Robot")
+            py::class_<Robot, std::shared_ptr<Robot>>(m, "Robot")
                 .def(py::init<float>(),
                     py::arg("radius"))
                 .def(py::init<float, const Posture&>(),
