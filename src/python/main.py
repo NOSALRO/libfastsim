@@ -1,4 +1,5 @@
 import pyfastsim
+import sys
 import math
 import time
 

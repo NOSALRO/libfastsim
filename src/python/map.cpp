@@ -12,8 +12,8 @@ namespace fastsim {
 
         void py_map(py::module& m)
         {
-            py::class_<Map, std::shared_ptr<Map>>(m, "Map")
-                .def(py::init<const char*, float>(),
+            py::class_<Map, std::shared_ptr<Map>> map(m, "Map");
+            map.def(py::init<const char*, float>(),
                     py::arg("fname"),
                     py::arg("real_w"))
                 .def(py::init<int, int, float>(),
@@ -35,6 +35,8 @@ namespace fastsim {
                 .def("get_real", &Map::get_real,
                     py::arg("x"),
                     py::arg("y"))
+                .def("pixel_to_real", &Map::pixel_to_real,
+                    py::arg("i"))
                 .def("real_to_pixel", &Map::real_to_pixel,
                     py::arg("x"))
                 .def("get_real_w", &Map::get_real_w)
@@ -78,6 +80,11 @@ namespace fastsim {
                     py::arg("y"),
                     py::arg("lx"),
                     py::arg("ly"));
+
+            py::enum_<Map::status_t>(map, "status_t")
+                .value("free", Map::status_t::free)
+                .value("obstacle", Map::status_t::obstacle)
+                .export_values();
         }
     } // namespace python
 } // namespace fastsim
