@@ -46,8 +46,8 @@ namespace fastsim
 
   void Display :: _blit_map()
   {
-    for (unsigned i = 0; i < _map->get_pixel_w(); ++i)
-      for (unsigned j = 0; j < _map->get_pixel_h(); ++j)
+    for (int i = 0; i < _map->get_pixel_w(); ++i)
+      for (int j = 0; j < _map->get_pixel_h(); ++j)
 	if (_map->get_pixel(i, j) == Map::obstacle)
 	  _put_pixel(_map_bmp, i, j, 0, 0, 0);
 	else
