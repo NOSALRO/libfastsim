@@ -11,7 +11,7 @@ namespace fastsim {
 
         void py_illuminated_switch(py::module& m)
         {
-            py::class_<IlluminatedSwitch>(m, "IlluminatedSwitch")
+            py::class_<IlluminatedSwitch, std::shared_ptr<IlluminatedSwitch>>(m, "IlluminatedSwitch")
                 .def(py::init<int, float, float, float, bool>(),
                     py::arg("color"),
                     py::arg("radius"),
