@@ -6,28 +6,30 @@
 
 namespace py = pybind11;
 
-namespace fastsim {
-    namespace python {
+namespace fastsim
+{
+    namespace python
+    {
         using namespace fastsim;
 
-        void py_posture(py::module& m)
+        void py_posture(py::module &m)
         {
             py::class_<Posture>(m, "Posture")
                 .def(py::init<float, float, float>(),
-                    py::arg("x"),
-                    py::arg("y"),
-                    py::arg("theta"))
+                     py::arg("x"),
+                     py::arg("y"),
+                     py::arg("theta"))
                 .def(py::init<>())
-                .def(py::init<const Posture&>(),
-                    py::arg("p"))
+                .def(py::init<const Posture &>(),
+                     py::arg("p"))
                 .def("__eq__", &Posture::operator=)
                 .def("theta", &Posture::theta)
                 .def("set_theta", &Posture::set_theta,
-                    py::arg("t"))
+                     py::arg("t"))
                 .def("set_x", &Posture::set_x,
-                    py::arg("x"))
+                     py::arg("x"))
                 .def("set_y", &Posture::set_y,
-                    py::arg("y"))
+                     py::arg("y"))
                 .def("x", &Posture::x)
                 .def("y", &Posture::y)
                 .def("get_x", &Posture::get_x)
@@ -38,13 +40,17 @@ namespace fastsim {
                 // py::arg("x"),
                 // py::arg("y"))
                 .def("rotate", &Posture::rotate,
-                    py::arg("theta"))
+                     py::arg("theta"))
                 .def("__add__", &Posture::operator+,
-                    py::arg("o"))
+                     py::arg("o"))
                 .def("move", &Posture::move,
-                    py::arg("d_l"),
-                    py::arg("d_r"),
-                    py::arg("wheels_dist"));
+                     py::arg("d_l"),
+                     py::arg("d_r"),
+                     py::arg("wheels_dist"))
+                .def("__copy__", [](const Posture &self)
+                     { return Posture(self); })
+                .def("__deepcopy__", [](const Posture &self, py::dict)
+                     { return Posture(self); });
         }
     } // namespace python
 } // namespace fastsim
