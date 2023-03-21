@@ -26,6 +26,7 @@ namespace fastsim {
             std::string s("<xmlattr>.");
             return v.get<R>(s + std::string(a));
         }
+
         bool _get_a_bool(const boost::property_tree::ptree& v,
             const char* a) const
         {

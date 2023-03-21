@@ -122,6 +122,7 @@ namespace fastsim {
     protected:
         bool _check_collision(const std::shared_ptr<Map>& m);
         void _update_bb();
+
         float _radius;
         Posture _pos;
         BoundingBox _bb;
