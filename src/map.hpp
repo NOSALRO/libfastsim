@@ -80,7 +80,7 @@ namespace fastsim {
 
         // copy ONLY the picture (no goal, illuminated switches, etc)
         // REASON:
-        // we want to avoid reading the data data but we don't want to
+        // we want to avoid reading the data but we don't want to
         // require good copy constructors for all objects
         Map(const Map& o) : _data(o._data),
                             _w(o._w),

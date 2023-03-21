@@ -81,8 +81,8 @@ namespace fastsim {
                     py::arg("y"),
                     py::arg("lx"),
                     py::arg("ly"))
-                .def("__copy__", [](const Map& self) { return Map(self); })
-                .def("__deepcopy__", [](const Map& self, py::dict) { return Map(self); });
+                .def("__copy__", [](const Map& self) { auto mp = Map(self); for(const auto& g: self.get_goals()) mp.add_goal(g); return mp; })
+                .def("__deepcopy__", [](const Map& self, py::dict) { auto mp = Map(self); for(const auto& g: self.get_goals()) mp.add_goal(g); return mp; });
 
             py::enum_<Map::status_t>(map, "status_t")
                 .value("free", Map::status_t::free)
