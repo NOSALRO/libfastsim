@@ -1,3 +1,4 @@
+#include <vector>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -85,11 +86,11 @@ namespace fastsim {
                 .def("__deepcopy__", [](const Map& self, py::dict) { auto mp = Map(self); for(const auto& g: self.get_goals()) mp.add_goal(g); return mp; })
                 .def(py::pickle(
                     [](const Map &m) {
-                        return py::make_tuple(m.get_pixel_w(), m.get_pixel_h(), m.get_real_w());
+                        return py::make_tuple(m.get_pixel_w(), m.get_pixel_h(), m.get_real_w(), m.get_data());
                     },
                     [](py::tuple t) {
-                        // Robot r(t[0].cast<float>(), t[1].cast<const Posture*>());
                         Map m(t[0].cast<int>(), t[1].cast<int>(), t[2].cast<float>());
+                        m.set_data(t[3].cast<std::vector<Map::status_t>>());
                         return m;
                     }
                 ));
