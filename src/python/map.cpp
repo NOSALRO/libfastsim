@@ -82,7 +82,17 @@ namespace fastsim {
                     py::arg("lx"),
                     py::arg("ly"))
                 .def("__copy__", [](const Map& self) { auto mp = Map(self); for(const auto& g: self.get_goals()) mp.add_goal(g); return mp; })
-                .def("__deepcopy__", [](const Map& self, py::dict) { auto mp = Map(self); for(const auto& g: self.get_goals()) mp.add_goal(g); return mp; });
+                .def("__deepcopy__", [](const Map& self, py::dict) { auto mp = Map(self); for(const auto& g: self.get_goals()) mp.add_goal(g); return mp; })
+                .def(py::pickle(
+                    [](const Map &m) {
+                        return py::make_tuple(m.get_pixel_w(), m.get_pixel_h(), m.get_real_w());
+                    },
+                    [](py::tuple t) {
+                        // Robot r(t[0].cast<float>(), t[1].cast<const Posture*>());
+                        Map m(t[0].cast<int>(), t[1].cast<int>(), t[2].cast<float>());
+                        return m;
+                    }
+                ));
 
             py::enum_<Map::status_t>(map, "status_t")
                 .value("free", Map::status_t::free)

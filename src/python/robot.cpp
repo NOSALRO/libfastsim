@@ -56,7 +56,17 @@ namespace fastsim {
                 .def("camera_enabled", &Robot::camera_enabled)
                 .def("use_camera", static_cast<void (Robot::*)()>(&Robot::use_camera))
                 .def("__copy__", [](const Robot& self) { return Robot(self); })
-                .def("__deepcopy__", [](const Robot& self, py::dict) { return Robot(self); });
+                .def("__deepcopy__", [](const Robot& self, py::dict) { return Robot(self); })
+                .def(py::pickle(
+                    [](const Robot &r) {
+                        return py::make_tuple(r.get_radius(), r.get_pos());
+                    },
+                    [](py::tuple t) {
+                        // Robot r(t[0].cast<float>(), t[1].cast<const Posture*>());
+                        Robot r(t[0].cast<float>());
+                        return r;
+                    }
+                ));
         }
     } // namespace python
 } // namespace fastsim

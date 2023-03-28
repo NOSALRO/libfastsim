@@ -21,6 +21,7 @@ def options(opt):
     opt.load('pybind')
 
     opt.add_option('--python', action='store_true', help='compile python bindings', dest='pybind')
+    opt.add_option('--cxx-version', action='store', help='CXX version', dest='cxx_version', default=None)
 
 def configure(conf):
     print("configuring b-optimize")
@@ -48,7 +49,10 @@ def configure(conf):
     #            min_version='1.35')
 
     # release
-    opt_flags = common_flags + ' -O3 -fPIC'
+    cxx_version = ' '
+    if conf.options.cxx_version:
+        cxx_version = f'-std={conf.options.cxx_version}'
+    opt_flags = common_flags + ' -O3 -fPIC ' + cxx_version
     conf.env['CXXFLAGS'] = cxxflags + opt_flags.split(' ')
     print(conf.env['CXXFLAGS'])
 

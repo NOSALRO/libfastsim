@@ -32,11 +32,11 @@ namespace fastsim {
                 .def("y", &Posture::y)
                 .def("get_x", &Posture::get_x)
                 .def("get_y", &Posture::get_y)
-                // .def("dist_to", static_cast<float (Posture::*)(const Posture&)>(&Posture::dist_to),
-                // py::arg("p"))
-                // .def("dist_to", static_cast<float (Posture::*)(float, float)>(&Posture::dist_to),
-                // py::arg("x"),
-                // py::arg("y"))
+                .def("dist_to", static_cast<float (Posture::*)(const Posture&) const>(&Posture::dist_to),
+                py::arg("p"))
+                .def("dist_to", static_cast<float (Posture::*)(float, float) const>(&Posture::dist_to),
+                py::arg("x"),
+                py::arg("y"))
                 .def("rotate", &Posture::rotate,
                     py::arg("theta"))
                 .def("__add__", &Posture::operator+,
@@ -46,7 +46,17 @@ namespace fastsim {
                     py::arg("d_r"),
                     py::arg("wheels_dist"))
                 .def("__copy__", [](const Posture& self) { return Posture(self); })
-                .def("__deepcopy__", [](const Posture& self, py::dict) { return Posture(self); });
+                .def("__deepcopy__", [](const Posture& self, py::dict) { return Posture(self); })
+                .def(py::pickle(
+                    [](const Posture &p) {
+                        return py::make_tuple(p.get_x(), p.get_y(), p.theta());
+                    },
+                    [](py::tuple t) {
+                        // Posture p(new Posture(t[0], t[1], t[2]));
+                        Posture p;
+                        return p;
+                    }
+                ));
         }
     } // namespace python
 } // namespace fastsim
