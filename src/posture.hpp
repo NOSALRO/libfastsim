@@ -88,29 +88,13 @@ namespace fastsim {
         const Posture& move(float d_l, float d_r, float wheels_dist)
         {
             Posture old_pos = *this;
-            Posture p;
             float d = wheels_dist;
             float r = 1.0;
-            float phi_dot = r/(2*d) * (d_r - d_l);
-            float x_dot = (r/2)*cos(old_pos.theta())*(d_l + d_r);
-            float y_dot = (r/2)*sin(old_pos.theta())*(d_l + d_r);
-            // float alpha = (d_r - d_l) / wheels_dist;
-            // Posture p;
+            float phi_dot = r / (2 * d) * (d_r - d_l);
+            float x_dot = (r / 2) * cos(old_pos.theta()) * (d_l + d_r);
+            float y_dot = (r / 2) * sin(old_pos.theta()) * (d_l + d_r);
 
-            // if (fabs(alpha) > 1e-10) {
-            //     float r = (d_l / alpha) + wheels_dist / 2;
-            //     float d_x = (cos(alpha) - 1) * r;
-            //     float d_y = sin(alpha) * r;
-            //     p = Posture(d_x, d_y, alpha);
-            //     p.rotate(old_pos.theta() - M_PI / 2);
-            //     p.set_theta(normalize_angle(alpha));
-            // }
-            // else
-            //     p = Posture(d_l * cos(old_pos.theta()),
-            //         d_l * sin(old_pos.theta()),
-            //         0);
-            p = Posture(x_dot, y_dot, phi_dot);
-            *this = p + old_pos;
+            *this = old_pos + Posture(x_dot, y_dot, phi_dot);
             return *this;
         }
 
