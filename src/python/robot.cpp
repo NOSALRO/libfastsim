@@ -67,6 +67,11 @@ namespace fastsim {
                         return r;
                     }
                 ));
+            py::class_<Robot::BoundingBox>(m, "BoundingBox")
+                .def_readonly("x", &Robot::BoundingBox::x)
+                .def_readonly("y", &Robot::BoundingBox::y)
+                .def_readonly("w", &Robot::BoundingBox::w)
+                .def_readonly("h", &Robot::BoundingBox::h);
         }
     } // namespace python
 } // namespace fastsim

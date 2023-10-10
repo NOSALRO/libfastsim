@@ -81,6 +81,7 @@ def build(bld):
                 source = libfastsim_srcs,
                 includes = './src',
                 uselib = libs,
+                defines = bld.env.DEFINES_SDL,
                 target = 'fastsim')
     #### end
 
