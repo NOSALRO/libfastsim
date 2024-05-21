@@ -27,16 +27,45 @@
 #include "robot.hpp"
 
 namespace fastsim {
+    std::vector<std::vector<float>> Robot::linear_interpolation(const Posture& p1, const Posture& p2, int num_points)
+    {
+        std::vector<std::vector<float>> points;
+        if ((p1.x() == p2.x()) && (p1.y() == p2.y())) {
+            return points;
+        }
+        points.resize(num_points);
+
+        float slope = (p2.y() - p1.y()) / (p2.x() - p1.x());
+        float y_intercept = p1.y() - slope * p1.x();
+
+        float step_size = (p2.x() - p1.x()) / (num_points - 1);
+        for (int i = 0; i < num_points; ++i) {
+            float x = p1.x() + i * step_size;
+            float y = slope * x + y_intercept;
+            points[i] = std::vector<float>{x, y};
+        }
+
+      return points;
+    }
+
     void Robot ::move(float v1, float v2, const std::shared_ptr<Map>& m, bool sticky_walls)
     {
         Posture prev = _pos;
         _pos.move(v1, v2, _radius * 2);
+        Posture valid_pos;
+        auto points = linear_interpolation(prev, _pos, 20);
+        for (const auto & i : points) {
+            int x = m->real_to_pixel(i[0]);
+            int y = m->real_to_pixel(i[1]);
+            if (m->get_pixel(x, y) == 0)
+                valid_pos = Posture(i[0], i[1], _pos.theta());
+            else {
+                _pos = valid_pos;
+                break;
+            }
+        }
         _update_bb();
         // update bumpers & go back if there is a collision
-        if (!_check_collision(m)) {
-            _last_valid_pos = _pos;
-            _collision = false;
-        }
         if (_check_collision(m)) {
             float theta = _pos.theta();
             _pos = _last_valid_pos;

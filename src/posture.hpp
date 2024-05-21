@@ -82,8 +82,8 @@ namespace fastsim {
             Posture p;
             p._x = _x + o._x;
             p._y = _y + o._y;
-            p._x = std::max(0.f, std::min(p._x, 600.0f));
-            p._y = std::max(0.f, std::min(p._y, 600.0f));
+            // p._x = std::max(0.f, std::min(p._x, 600.0f));
+            // p._y = std::max(0.f, std::min(p._y, 600.0f));
             p._theta = normalize_angle(_theta + o._theta);
             return p;
         }

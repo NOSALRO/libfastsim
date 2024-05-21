@@ -76,6 +76,7 @@ namespace fastsim {
         // m - (std::shared_ptr) pointer to map
         // sticky_walls - (boolean) whether we want sticky walls or not (the robot turns when in collision if this value is false)
         void move(float v1, float v2, const std::shared_ptr<Map>& m, bool sticky_walls = true);
+        std::vector<std::vector<float>> linear_interpolation(const Posture& p1, const Posture& p2, int num_points);
 
         const Posture& get_pos() const { return _pos; }
         void set_pos(const Posture& pos) { _pos = pos; }
