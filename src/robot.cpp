@@ -33,9 +33,11 @@ namespace fastsim {
         _pos.move(v1, v2, _radius * 2);
         _update_bb();
         // update bumpers & go back if there is a collision
+        if (!_check_collision(m))
+            _last_valid_pos = _pos;
         if (_check_collision(m)) {
             float theta = _pos.theta();
-            _pos = prev;
+            _pos = _last_valid_pos;
             if (!sticky_walls) // activate if you want to turn when in collision
                 _pos.set_theta(theta);
             _collision = true;

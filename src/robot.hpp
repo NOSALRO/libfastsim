@@ -134,6 +134,7 @@ namespace fastsim {
         LinearCamera _camera;
         bool _use_camera;
         bool _collision;
+        Posture _last_valid_pos;
         unsigned int _color;
         float _vx, _vy, _va;
     };
