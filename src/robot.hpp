@@ -60,6 +60,7 @@ namespace fastsim {
         {
             _bb.w = _radius * 2 + 8;
             _bb.h = _radius * 2 + 8;
+            _last_valid_pos = _pos;
             _update_bb();
         }
 

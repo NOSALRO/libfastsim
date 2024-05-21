@@ -23,6 +23,7 @@
 
 #ifndef POSTURE_HH_
 #define POSTURE_HH_
+#include <iostream>
 #include <cmath>
 
 namespace fastsim {
@@ -92,9 +93,13 @@ namespace fastsim {
             float r = 1.0;
             float phi_dot = r / (2 * d) * (d_r - d_l);
             float x_dot = (r / 2) * cos(old_pos.theta()) * (d_l + d_r);
+            std::cout << x_dot << std::endl;
             float y_dot = (r / 2) * sin(old_pos.theta()) * (d_l + d_r);
+            std::cout << y_dot << std::endl;
 
-            *this = old_pos + Posture(x_dot, y_dot, phi_dot);
+            Posture new_pos = old_pos + Posture(x_dot, y_dot, phi_dot);
+            if ((new_pos._x >= 0) && (new_pos._x <= 600.) && (new_pos._y >= 0) && (new_pos._y <= 600.))
+                *this = new_pos;
             return *this;
         }
 
