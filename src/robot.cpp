@@ -48,31 +48,88 @@ namespace fastsim {
       return points;
     }
 
+    Posture Robot::line_collision(const std::vector<std::vector<float>>& points, const std::shared_ptr<Map>& m)
+    {
+        // int rp = m->real_to_pixel(_radius);
+        // int r = rp * rp;
+        // for (const auto &p : points) {
+        //   int x = m->real_to_pixel(p[0]);
+        //   int y = m->real_to_pixel(p[1]);
+        //   if (m->get_pixel(x, y) == 0) {
+        //       int bbx = m->real_to_pixel(x - _radius - 4);
+        //       int bby = m->real_to_pixel(y - _radius - 4);
+        //       int bbw = m->real_to_pixel(x - _radius - 4 + _bb.w);
+        //       int bbh = m->real_to_pixel(y - _radius - 4 + _bb.h);
+        //       int num_collisions = 0;
+        //       for (int i = bbx; i < bbw; ++i)
+        //         for (int j = bby; j < bbh; ++j)
+        //           if (m->get_pixel(i, j) == 255) {
+        //             float d1 = (i - x);
+        //             float d2 = (j - y);
+        //             if (d1 * d1 + d2 * d2 <= r)
+        //                 num_collisions++;
+        //           }
+        //       if (!num_collisions) {
+        //           _pos = Posture(p[0], p[1], _pos.theta());
+        //       }
+        //       else {
+        //           return _pos;
+        //       }
+        //   }
+        //   else
+        //     return _pos;
+        // }
+       // return _pos;
+        Posture valid_posture = _pos;
+        for (const auto & p: points) {
+            _pos = Posture(p[0], p[1], _pos.theta());
+            _update_bb();
+            int rp = m->real_to_pixel(_radius);
+            int r = rp * rp;
+            int x = m->real_to_pixel(_pos.x());
+            int y = m->real_to_pixel(_pos.y());
+            int bbx = m->real_to_pixel(_bb.x);
+            int bby = m->real_to_pixel(_bb.y);
+            int bbw = m->real_to_pixel(_bb.x + _bb.w);
+            int bbh = m->real_to_pixel(_bb.y + _bb.h);
+
+            typedef std::pair<int, int> p_t;
+            std::list<p_t> coll_points;
+            for (int i = bbx; i < bbw; ++i)
+                for (int j = bby; j < bbh; ++j)
+                    if (m->get_pixel(i, j) == Map::obstacle) {
+                        float d1 = (i - x);
+                        float d2 = (j - y);
+                        if (d1 * d1 + d2 * d2 <= r)
+                            coll_points.push_back(p_t(i, j));
+                    }
+            _left_bumper = false;
+            _right_bumper = false;
+            if (coll_points.empty())
+                valid_posture = _pos;
+            else {
+                return valid_posture;
+            }
+        }
+        return valid_posture;
+    }
+
     void Robot ::move(float v1, float v2, const std::shared_ptr<Map>& m, bool sticky_walls)
     {
         Posture prev = _pos;
         _pos.move(v1, v2, _radius * 2);
-        Posture valid_pos;
-        auto points = linear_interpolation(prev, _pos, 20);
-        for (const auto & i : points) {
-            int x = m->real_to_pixel(i[0]);
-            int y = m->real_to_pixel(i[1]);
-            if (m->get_pixel(x, y) == 0)
-                valid_pos = Posture(i[0], i[1], _pos.theta());
-            else {
-                _pos = valid_pos;
-                break;
-            }
-        }
+        Posture valid_pos = prev;
+        auto points = linear_interpolation(prev, _pos, 50);
+        _pos = line_collision(points, m);
         _update_bb();
         // update bumpers & go back if there is a collision
-        if (_check_collision(m)) {
-            float theta = _pos.theta();
-            _pos = _last_valid_pos;
-            if (!sticky_walls) // activate if you want to turn when in collision
-                _pos.set_theta(theta);
-            _collision = true;
-        }
+        // if (_check_collision(m)) {
+        //     float theta = _pos.theta();
+        //     _pos = _last_valid_pos;
+        //     if (!sticky_walls) // activate if you want to turn when in collision
+        //         _pos.set_theta(theta);
+        //     _collision = true;
+        // }
 
         _vx = _pos.x() - prev.x();
         _vy = _pos.y() - prev.y();
