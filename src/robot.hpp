@@ -76,8 +76,6 @@ namespace fastsim {
         // m - (std::shared_ptr) pointer to map
         // sticky_walls - (boolean) whether we want sticky walls or not (the robot turns when in collision if this value is false)
         void move(float v1, float v2, const std::shared_ptr<Map>& m, bool sticky_walls = true);
-        std::vector<std::vector<float>> linear_interpolation(const Posture& p1, const Posture& p2, int num_points);
-        Posture line_collision(const std::vector<std::vector<float>>& points, const std::shared_ptr<Map>& m, const Posture& prev);
 
         const Posture& get_pos() const { return _pos; }
         void set_pos(const Posture& pos) { _pos = pos; }
@@ -123,7 +121,9 @@ namespace fastsim {
         bool use_camera() const { return _use_camera; }
 
     protected:
+        std::vector<std::vector<float>> _linear_interpolation(const Posture& p1, const Posture& p2, int num_points);
         bool _check_collision(const std::shared_ptr<Map>& m);
+        Posture _line_collision(const std::vector<std::vector<float>>& points, const std::shared_ptr<Map>& m, const Posture& o, bool sticky_walls);
         void _update_bb();
 
         float _radius;

@@ -27,7 +27,40 @@
 #include "robot.hpp"
 
 namespace fastsim {
-    std::vector<std::vector<float>> Robot::linear_interpolation(const Posture& p1, const Posture& p2, int num_points)
+
+    void Robot ::move(float v1, float v2, const std::shared_ptr<Map>& m, bool sticky_walls)
+    {
+        Posture prev = _pos;
+        _pos.move(v1, v2, _radius * 2);
+        int num_points = std::max(std::max(static_cast<int>(v1), static_cast<int>(v2))/10, 50);
+        auto points = _linear_interpolation(prev, _pos, num_points);
+        if (points.size() > 0) {
+            _pos = _line_collision(points, m, prev, sticky_walls);
+        }
+        _update_bb();
+
+        _vx = _pos.x() - prev.x();
+        _vy = _pos.y() - prev.y();
+        _va = _pos.theta() - prev.theta();
+
+        // update lasers
+        for (size_t i = 0; i < _lasers.size(); ++i)
+            _lasers[i].update(_pos, m);
+        for (size_t i = 0; i < _laser_scanners.size(); ++i)
+            _laser_scanners[i].update(_pos, m);
+
+        // update radars
+        for (size_t i = 0; i < _radars.size(); ++i)
+            _radars[i].update(_pos, m);
+        // update light sensors
+        for (size_t i = 0; i < _light_sensors.size(); ++i)
+            _light_sensors[i].update(_pos, m);
+        // update camera
+        if (_use_camera)
+            _camera.update(_pos, m);
+    }
+
+    std::vector<std::vector<float>> Robot::_linear_interpolation(const Posture& p1, const Posture& p2, int num_points)
     {
         std::vector<std::vector<float>> points;
         if ((p1.x() == p2.x() && p2.y() == p1.y())) {
@@ -52,124 +85,8 @@ namespace fastsim {
         }
 
         return points;
-
-      //   float slope = (p2.y() - p1.y()) / (p2.x() - p1.x());
-      //   float y_intercept = p1.y() - slope * p1.x();
-
-      //   float step_size = (p2.x() - p1.x()) / (num_points - 1);
-      //   for (int i = 0; i < num_points; ++i) {
-      //       float x = p1.x() + i * step_size;
-      //       float y = slope * x + y_intercept;
-      //       points[i] = std::vector<float>{x, y};
-      //   }
-
-      // return points;
     }
 
-    Posture Robot::line_collision(const std::vector<std::vector<float>>& points, const std::shared_ptr<Map>& m, const Posture& prev)
-    {
-        // int rp = m->real_to_pixel(_radius);
-        // int r = rp * rp;
-        // for (const auto &p : points) {
-        //   int x = m->real_to_pixel(p[0]);
-        //   int y = m->real_to_pixel(p[1]);
-        //   if (m->get_pixel(x, y) == 0) {
-        //       int bbx = m->real_to_pixel(x - _radius - 4);
-        //       int bby = m->real_to_pixel(y - _radius - 4);
-        //       int bbw = m->real_to_pixel(x - _radius - 4 + _bb.w);
-        //       int bbh = m->real_to_pixel(y - _radius - 4 + _bb.h);
-        //       int num_collisions = 0;
-        //       for (int i = bbx; i < bbw; ++i)
-        //         for (int j = bby; j < bbh; ++j)
-        //           if (m->get_pixel(i, j) == 255) {
-        //             float d1 = (i - x);
-        //             float d2 = (j - y);
-        //             if (d1 * d1 + d2 * d2 <= r)
-        //                 num_collisions++;
-        //           }
-        //       if (!num_collisions) {
-        //           _pos = Posture(p[0], p[1], _pos.theta());
-        //       }
-        //       else {
-        //           return _pos;
-        //       }
-        //   }
-        //   else
-        //     return _pos;
-        // }
-       // return _pos;
-        Posture valid_posture = prev;
-        for (const auto & p: points) {
-            _pos = Posture(p[0], p[1], p[2]);
-            _update_bb();
-            int rp = m->real_to_pixel(_radius);
-            int r = rp * rp;
-            int x = m->real_to_pixel(_pos.x());
-            int y = m->real_to_pixel(_pos.y());
-            int bbx = m->real_to_pixel(_bb.x);
-            int bby = m->real_to_pixel(_bb.y);
-            int bbw = m->real_to_pixel(_bb.x + _bb.w);
-            int bbh = m->real_to_pixel(_bb.y + _bb.h);
-
-            typedef std::pair<int, int> p_t;
-            std::list<p_t> coll_points;
-            for (int i = bbx; i < bbw; ++i)
-                for (int j = bby; j < bbh; ++j)
-                    if (m->get_pixel(i, j) == Map::obstacle) {
-                        float d1 = (i - x);
-                        float d2 = (j - y);
-                        if (d1 * d1 + d2 * d2 <= r)
-                            coll_points.push_back(p_t(i, j));
-                    }
-            _left_bumper = false;
-            _right_bumper = false;
-            if (coll_points.empty())
-                valid_posture = _pos;
-            else {
-                return valid_posture;
-            }
-        }
-        return valid_posture;
-    }
-
-    void Robot ::move(float v1, float v2, const std::shared_ptr<Map>& m, bool sticky_walls)
-    {
-        Posture prev = _pos;
-        _pos.move(v1, v2, _radius * 2);
-        auto points = linear_interpolation(prev, _pos, 500);
-        if (points.size() > 0) {
-            _pos = line_collision(points, m, prev);
-        }
-        _update_bb();
-        // update bumpers & go back if there is a collision
-        // if (_check_collision(m)) {
-        //     float theta = _pos.theta();
-        //     _pos = _last_valid_pos;
-        //     if (!sticky_walls) // activate if you want to turn when in collision
-        //         _pos.set_theta(theta);
-        //     _collision = true;
-        // }
-
-        _vx = _pos.x() - prev.x();
-        _vy = _pos.y() - prev.y();
-        _va = _pos.theta() - prev.theta();
-
-        // update lasers
-        for (size_t i = 0; i < _lasers.size(); ++i)
-            _lasers[i].update(_pos, m);
-        for (size_t i = 0; i < _laser_scanners.size(); ++i)
-            _laser_scanners[i].update(_pos, m);
-
-        // update radars
-        for (size_t i = 0; i < _radars.size(); ++i)
-            _radars[i].update(_pos, m);
-        // update light sensors
-        for (size_t i = 0; i < _light_sensors.size(); ++i)
-            _light_sensors[i].update(_pos, m);
-        // update camera
-        if (_use_camera)
-            _camera.update(_pos, m);
-    }
 
     void Robot ::_update_bb()
     {
@@ -218,5 +135,43 @@ namespace fastsim {
             }
             return true;
         }
+    }
+
+    Posture Robot::_line_collision(const std::vector<std::vector<float>>& points, const std::shared_ptr<Map>& m, const Posture& o, bool sticky_walls)
+    {
+        Posture valid_pos = o;
+        float theta = _pos.theta();
+        int rp = m->real_to_pixel(_radius);
+        int r = rp * rp;
+        for (const auto & p: points) {
+            _pos = Posture(p[0], p[1], p[2]);
+            _update_bb();
+            int x = m->real_to_pixel(_pos.x());
+            int y = m->real_to_pixel(_pos.y());
+            int bbx = m->real_to_pixel(_bb.x);
+            int bby = m->real_to_pixel(_bb.y);
+            int bbw = m->real_to_pixel(_bb.x + _bb.w);
+            int bbh = m->real_to_pixel(_bb.y + _bb.h);
+
+            bool collision = false;
+            for (int i = bbx; i < bbw; ++i)
+                for (int j = bby; j < bbh; ++j)
+                    if (m->get_pixel(i, j) == Map::obstacle) {
+                        float d1 = (i - x);
+                        float d2 = (j - y);
+                        if (d1 * d1 + d2 * d2 <= r)
+                            collision = true;
+                    }
+            if (!collision) {
+                if (!sticky_walls) {
+                    valid_pos = _pos;
+                    valid_pos.set_theta(theta);
+                }
+            }
+            else {
+                return valid_pos;
+            }
+        }
+        return valid_pos;
     }
 } // namespace fastsim
