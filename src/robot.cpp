@@ -30,22 +30,40 @@ namespace fastsim {
     std::vector<std::vector<float>> Robot::linear_interpolation(const Posture& p1, const Posture& p2, int num_points)
     {
         std::vector<std::vector<float>> points;
-        if ((p1.x() == p2.x()) && (p1.y() == p2.y())) {
+        if ((p1.x() == p2.x() && p2.y() == p1.y())) {
             return points;
         }
         points.resize(num_points);
 
-        float slope = (p2.y() - p1.y()) / (p2.x() - p1.x());
-        float y_intercept = p1.y() - slope * p1.x();
+        // Calculate step sizes for each coordinate (assuming x, y, theta order)
+        float step_x = (p2.x() - p1.x()) / (num_points - 1);
+        float step_y = (p2.y() - p1.y()) / (num_points - 1);
 
-        float step_size = (p2.x() - p1.x()) / (num_points - 1);
+        // Handle theta in radians (assuming member function for accessing radians)
+        float theta_diff = p2.theta() - p1.theta();
+        float step_theta = std::fmod(theta_diff + 2 * M_PI, 2 * M_PI); // Ensure values wrap within 0 to 2*PI
+
         for (int i = 0; i < num_points; ++i) {
-            float x = p1.x() + i * step_size;
-            float y = slope * x + y_intercept;
-            points[i] = std::vector<float>{x, y};
+          // Access posture elements using member functions
+          float x = p1.x() + i * step_x;
+          float y = p1.y() + i * step_y;
+          float theta = p1.theta() + i * step_theta;
+          points[i] = {x, y, theta}; // Assign interpolated values to the sub-vector
         }
 
-      return points;
+        return points;
+
+      //   float slope = (p2.y() - p1.y()) / (p2.x() - p1.x());
+      //   float y_intercept = p1.y() - slope * p1.x();
+
+      //   float step_size = (p2.x() - p1.x()) / (num_points - 1);
+      //   for (int i = 0; i < num_points; ++i) {
+      //       float x = p1.x() + i * step_size;
+      //       float y = slope * x + y_intercept;
+      //       points[i] = std::vector<float>{x, y};
+      //   }
+
+      // return points;
     }
 
     Posture Robot::line_collision(const std::vector<std::vector<float>>& points, const std::shared_ptr<Map>& m, const Posture& prev)
@@ -82,7 +100,7 @@ namespace fastsim {
        // return _pos;
         Posture valid_posture = prev;
         for (const auto & p: points) {
-            _pos = Posture(p[0], p[1], _pos.theta());
+            _pos = Posture(p[0], p[1], p[2]);
             _update_bb();
             int rp = m->real_to_pixel(_radius);
             int r = rp * rp;
@@ -118,7 +136,6 @@ namespace fastsim {
     {
         Posture prev = _pos;
         _pos.move(v1, v2, _radius * 2);
-        Posture valid_pos = prev;
         auto points = linear_interpolation(prev, _pos, 500);
         if (points.size() > 0) {
             _pos = line_collision(points, m, prev);
