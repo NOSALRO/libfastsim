@@ -32,7 +32,7 @@ namespace fastsim {
     {
         Posture prev = _pos;
         _pos.move(v1, v2, _radius * 2);
-        int num_points = std::max(std::max(static_cast<int>(v1), static_cast<int>(v2))/10, 50);
+        int num_points = std::max(std::max(static_cast<int>(v1), static_cast<int>(v2))/8, 40);
         auto points = _linear_interpolation(prev, _pos, num_points);
         if (points.size() > 0) {
             _pos = _line_collision(points, m, prev, sticky_walls);
@@ -163,8 +163,8 @@ namespace fastsim {
                             collision = true;
                     }
             if (!collision) {
+                valid_pos = _pos;
                 if (!sticky_walls) {
-                    valid_pos = _pos;
                     valid_pos.set_theta(theta);
                 }
             }
