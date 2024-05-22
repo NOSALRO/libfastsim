@@ -120,7 +120,9 @@ namespace fastsim {
         _pos.move(v1, v2, _radius * 2);
         Posture valid_pos = prev;
         auto points = linear_interpolation(prev, _pos, 500);
-        _pos = line_collision(points, m, prev);
+        if (points.size() > 0) {
+            _pos = line_collision(points, m, prev);
+        }
         _update_bb();
         // update bumpers & go back if there is a collision
         // if (_check_collision(m)) {
