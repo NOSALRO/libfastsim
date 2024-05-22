@@ -48,7 +48,7 @@ namespace fastsim {
       return points;
     }
 
-    Posture Robot::line_collision(const std::vector<std::vector<float>>& points, const std::shared_ptr<Map>& m)
+    Posture Robot::line_collision(const std::vector<std::vector<float>>& points, const std::shared_ptr<Map>& m, const Posture& prev)
     {
         // int rp = m->real_to_pixel(_radius);
         // int r = rp * rp;
@@ -80,7 +80,7 @@ namespace fastsim {
         //     return _pos;
         // }
        // return _pos;
-        Posture valid_posture = _pos;
+        Posture valid_posture = prev;
         for (const auto & p: points) {
             _pos = Posture(p[0], p[1], _pos.theta());
             _update_bb();
@@ -119,8 +119,8 @@ namespace fastsim {
         Posture prev = _pos;
         _pos.move(v1, v2, _radius * 2);
         Posture valid_pos = prev;
-        auto points = linear_interpolation(prev, _pos, 50);
-        _pos = line_collision(points, m);
+        auto points = linear_interpolation(prev, _pos, 500);
+        _pos = line_collision(points, m, prev);
         _update_bb();
         // update bumpers & go back if there is a collision
         // if (_check_collision(m)) {
